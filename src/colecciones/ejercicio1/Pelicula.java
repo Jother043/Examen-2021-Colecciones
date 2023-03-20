@@ -1,6 +1,7 @@
 package colecciones.ejercicio1;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class Pelicula {
 	private String titulo;
@@ -23,11 +24,24 @@ public class Pelicula {
 	public void annadirActor(String actor) {
 		actores.add(actor);
 	}
-	
-	
+
+	public HashSet<String> getActores() {
+		return actores;
+	}
 
 	public double mediaDeOpiniones() {
-		return 0;
+
+		return opiniones.stream().mapToInt(x -> x.getValoracion()).average().orElse(0);
+//		double media = 0;
+//
+//		Iterator<Opinion> i = opiniones.iterator();
+//		while(i.hasNext()){
+//			Opinion o = i.next();
+//			media =+ o.getValoracion();
+//		}
+//		return media / opiniones.size();
+		//return opiniones.stream().mapToDouble(x -> (double) x.getValoracion()).average().orElse(0);
+		//return opiniones.stream().mapToInt(x -> x.getValoracion()).average().orElse(0);
 	}
 
 	public String getTitulo() {

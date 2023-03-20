@@ -1,8 +1,7 @@
 package colecciones.ejercicio1;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PeliculasDeUnTema {
 
@@ -26,28 +25,29 @@ public class PeliculasDeUnTema {
             throw new NetPleaseException("No se puede añadir la misma película");
         }
 
-        if (pelicula.getAnnoEstreno() > MIN_ANNO || pelicula.getAnnoEstreno() < MAX_ANNO) {
-            throw new NetPleaseException("No puedes añadir una pelicula de antes de :" + MIN_ANNO + " ni madespues de " + MAX_ANNO)
+        if (pelicula.getAnnoEstreno() < MIN_ANNO || pelicula.getAnnoEstreno() > MAX_ANNO) {
+            throw new NetPleaseException("No puedes añadir una pelicula de antes de :" + MIN_ANNO + " ni una después de " + MAX_ANNO);
         }
         listaPeliculasDeUnTema.add(pelicula);
     }
 
     public void borrarLasPeliculasDeUnAnno(int anno) throws NetPleaseException {
 
-        Pelicula peliculaBorrada = null;
-        Iterator<Pelicula> itPelicula = listaPeliculasDeUnTema.iterator();
+//        Pelicula peliculaBorrada = null;
+//        Iterator<Pelicula> itPelicula = listaPeliculasDeUnTema.iterator();
 
-        while (itPelicula.hasNext()) {
-            Pelicula pelicula = itPelicula.next();
-            if (pelicula.getAnnoEstreno() == anno) {
-                peliculaBorrada = pelicula;
-                itPelicula.remove();
-            }
-        }
+        listaPeliculasDeUnTema.stream().filter(x -> x.getAnnoEstreno() != anno).collect(Collectors.toCollection(LinkedList::new));
+//        while (itPelicula.hasNext()) {
+//            Pelicula pelicula = itPelicula.next();
+//            if (pelicula.getAnnoEstreno() == anno) {
+//                peliculaBorrada = pelicula;
+//                itPelicula = null;
+//            }
+//        }
 
-        if (peliculaBorrada == null) {
-            throw new NetPleaseException("No hay peliculas de ese año para borrar");
-        }
+//        if (peliculaBorrada == null) {
+//            throw new NetPleaseException("No hay películas de ese año para borrar");
+//        }
     }
 
     public void annadirOpinionAPelicula(String tituloPelicula, Opinion opinion) throws NetPleaseException {
@@ -60,30 +60,66 @@ public class PeliculasDeUnTema {
             }
         }
 
-        if(!peliculaEncontrada){
+        if (!peliculaEncontrada) {
             throw new NetPleaseException("No ha encontrado peliculas con ese nombre");
         }
     }
 
     public List<Pelicula> listadoDePeliculasOrdenadasPorMediaDeOpiniones() {
-        return null;
 
+        return listaPeliculasDeUnTema.stream()
+                .sorted((x1, x2) -> Double.compare(x1.mediaDeOpiniones(), x2.mediaDeOpiniones()))
+                .toList();
     }
 
-
+    /**
+     * Este método devuelve una lista de películas de las películas que contenga el actor que le pasamos por parámetro.
+     * @param actor
+     * @return listaPeliculasDondeIntervieneUnActor
+     */
     public List<Pelicula> listaPeliculasDondeIntervieneUnActor(String actor) {
-
-        return null;
+        /*
+         Devuelve una lista de películas de las películas que contenga el actor que le pasamos por parámetro.
+         */
+        return listaPeliculasDeUnTema.stream()
+                .filter(x -> x.getActores().contains(actor))
+                .toList();
     }
 
+    /**
+     * Este método devuelve una película de la lista de películas de un tema buscada por su título
+     * y devuelve null si no la encuentra.
+     * @param titulo
+     * @return películas
+     */
     public Pelicula buscarPeliculaPorTitulo(String titulo) {
 
+        // Recorremos la lista de películas de un tema
+        for (Pelicula p : listaPeliculasDeUnTema) {
+            // Si el título de la película es igual al título que le pasamos por parámetro
+            if (p.getTitulo().equals(titulo)) {
+                // Devolvemos la película
+                return p;
+            }
+        }
+        // Si no la encuentra, devuelve null
         return null;
     }
 
+    /**
+     * Borra una pelicula de la lista de peliculas de un tema y devuelve true si la ha borrado
+     * y false si no la ha borrado porque no la ha encontrado en la lista de peliculas de un tema.
+     * @param titulo
+     * @return
+     */
     public boolean borrar(String titulo) {
+        for (Pelicula p : listaPeliculasDeUnTema) {
+            if (p.getTitulo().equals(titulo)) {
+                listaPeliculasDeUnTema.remove(p);
+                return true;
+            }
+        }
         return false;
-
     }
 
     @Override
@@ -120,5 +156,7 @@ public class PeliculasDeUnTema {
         return sb.toString();
     }
 
-
+    public boolean existePelicula(String titulo) {
+        return listaPeliculasDeUnTema.stream().anyMatch(pelicula -> pelicula.getTitulo().equals(titulo));
+    }
 }
